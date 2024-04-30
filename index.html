@@ -29,7 +29,23 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
+
     <script>
+        // Your web app's Firebase configuration
+        var firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+
         function togglePassword() {
             var passwordField = document.getElementById("password");
             var toggleIcon = document.querySelector(".toggle-password");
@@ -43,33 +59,25 @@
             }
         }
 
-        // Validasi login
         document.getElementById("loginForm").addEventListener("submit", function(event) {
             event.preventDefault();
             
             var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
 
-            // Ambil data pengguna yang sudah terdaftar
-            var existingUsers = JSON.parse(localStorage.getItem("users")) || [];
-
-            // Cek apakah pengguna adalah developer
-            if (username === atob("ZGV2ZWxvcGVy") && password === atob("ZGV2ZWxvcGVyMzAwNjA2")) {
-                window.location.href = "account_control.html";
-                return;
-            }
-
-            // Cek apakah username dan password cocok dengan yang terdaftar
-            var userData = existingUsers.find(function(user) {
-                return user.username === username && user.password === password;
+            firebase.database().ref('users/' + username).get().then((snapshot) => {
+                if (snapshot.exists() && snapshot.val().password === password) {
+                    if (username === "developer") {
+                        window.location.href = "account_control.html";
+                    } else {
+                        window.location.href = "dashboard.html";
+                    }
+                } else {
+                    alert("Invalid username or password. Please try again!");
+                }
+            }).catch((error) => {
+                alert(error.message);
             });
-
-            if (userData) {
-                localStorage.setItem("userData", JSON.stringify(userData));
-                window.location.href = "dashboard.html";
-            } else {
-                alert("Invalid username or password. Please try again!");
-            }
         });
     </script>
 </body>
