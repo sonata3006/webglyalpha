@@ -29,23 +29,7 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-database.js"></script>
-
     <script>
-        // Your web app's Firebase configuration
-        var firebaseConfig = {
-            apiKey: "AIzaSyCIIff3CJs0OGP0KiqIrFI6qd4-DeADg-Q",
-            authDomain: "webgly-4864b.firebaseapp.com",
-            databaseURL: "https://webgly-4864b-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "webgly-4864b",
-            storageBucket: "webgly-4864b.appspot.com",
-            messagingSenderId: "784164887423",
-            appId: "1:784164887423:web:8924a86f8ef708c3b1984a"
-        };
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-
         function togglePassword() {
             var passwordField = document.getElementById("password");
             var toggleIcon = document.querySelector(".toggle-password");
@@ -59,25 +43,33 @@
             }
         }
 
+        // Validasi login
         document.getElementById("loginForm").addEventListener("submit", function(event) {
             event.preventDefault();
             
             var username = document.getElementById("username").value;
             var password = document.getElementById("password").value;
 
-            firebase.database().ref('users/' + username).get().then((snapshot) => {
-                if (snapshot.exists() && snapshot.val().password === password) {
-                    if (username === "developer") {
-                        window.location.href = "account_control.html";
-                    } else {
-                        window.location.href = "dashboard.html";
-                    }
-                } else {
-                    alert("Invalid username or password. Please try again!");
-                }
-            }).catch((error) => {
-                alert(error.message);
+            // Ambil data pengguna yang sudah terdaftar
+            var existingUsers = JSON.parse(localStorage.getItem("users")) || [];
+
+            // Cek apakah pengguna adalah developer
+            if (username === atob("ZGV2ZWxvcGVy") && password === atob("ZGV2ZWxvcGVyMzAwNjA2")) {
+                window.location.href = "account_control.html";
+                return;
+            }
+
+            // Cek apakah username dan password cocok dengan yang terdaftar
+            var userData = existingUsers.find(function(user) {
+                return user.username === username && user.password === password;
             });
+
+            if (userData) {
+                localStorage.setItem("userData", JSON.stringify(userData));
+                window.location.href = "dashboard.html";
+            } else {
+                alert("Invalid username or password. Please try again!");
+            }
         });
     </script>
 </body>
